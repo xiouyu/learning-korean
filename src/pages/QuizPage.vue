@@ -49,7 +49,7 @@
       </div>
       <div class="qprompt">
         <span v-if="q.m === 'k2r'" class="hangul" :style="{ fontSize: fitPx(q.a.k, 96, 440) }">{{ q.a.k }}</span>
-        <span v-else-if="q.m === 'r2k'" class="mono">{{ q.a.r }}</span>
+        <span v-else-if="q.m === 'r2k'" class="mono" :class="{ long: q.a.r.length > 12 }">{{ q.a.r }}</span>
         <button v-else class="btn primary" style="font-size: 16px; padding: 14px 22px" @click="say(q.a, q.a.k)">
           <SpeakerIcon /> {{ answered ? '再聽一次' : '播放發音' }}
         </button>
