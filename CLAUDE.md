@@ -1,6 +1,6 @@
 # 一步一步學習韓文
 
-韓文學習網站，目前內容是 40 音（韓文字母）第 1～12 步，加上《세종학당 한국어》1 第 1～3 課（第 13～31 步），之後接第 4 課（Quasar CLI + Vue 3 + TypeScript + Pinia，PWA，Supabase 同步）。架構從日文網站 `xiouyu/learning-japanese` 複製過來。使用者是台灣的韓文初學者，一律用繁體中文、台灣用語回覆。教學方式見 `docs/teaching-guide.md`。
+韓文學習網站，目前內容是 40 音（韓文字母）第 1～12 步，加上《세종학당 한국어》1 第 1～5 課（第 13～43 步），之後接第 6 課（Quasar CLI + Vue 3 + TypeScript + Pinia，PWA，Supabase 同步）。架構從日文網站 `xiouyu/learning-japanese` 複製過來。使用者是台灣的韓文初學者，一律用繁體中文、台灣用語回覆。教學方式見 `docs/teaching-guide.md`。
 
 ## 常用指令
 
