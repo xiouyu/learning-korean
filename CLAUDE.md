@@ -16,5 +16,5 @@
 - Supabase 跟日文網站共用同一個專案，進度存在 `korean_progress` 資料表（日文是 `progress`）
 - 自訂樣式在 `src/css/app.css`，class 名稱不要用 Quasar 已經用的工具類別（例如 `row`、`wrap`、`col`）
 - 部署：推到 `main` 會自動發布到 GitHub Pages
-- 課本原始教材（PDF、mp3）在使用者電腦上的備份和 Google Drive「Tia老師韓文資料」，不要把 PDF 或整頁圖片加進這個公開專案。《세종학당 한국어》1 的版權頁**沒有공공누리標示**，明寫禁止未經許可引用或摘錄，所以音檔不放上網站（`audio` 留空，用瀏覽器語音合成），講解一律用自己的話寫，每一步要填 `source`
+- 課本原始教材（PDF、mp3）在私人專案 `xiouyu/learning-korean-materials-new`（同使用者電腦上的備份和 Google Drive「Tia老師韓文資料」），不要把 PDF 或整頁圖片加進這個公開專案。《세종학당 한국어》1 的版權頁**沒有공공누리標示**，明寫禁止未經許可引用或摘錄，所以音檔不放上網站（`audio` 留空，用瀏覽器語音合成），講解一律用自己的話寫，每一步要填 `source`
 - 製作課本步驟的做法見 `docs/handoff-lessons.md`
