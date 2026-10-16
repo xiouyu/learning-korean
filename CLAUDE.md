@@ -1,6 +1,6 @@
 # 一步一步學習韓文
 
-韓文學習網站，目前內容是 40 音（韓文字母）第 1～12 步，之後接《世宗韓國語》1A（Quasar CLI + Vue 3 + TypeScript + Pinia，PWA，Supabase 同步）。架構從日文網站 `xiouyu/learning-japanese` 複製過來。使用者是台灣的韓文初學者，一律用繁體中文、台灣用語回覆。教學方式見 `docs/teaching-guide.md`。
+韓文學習網站，目前內容是 40 音（韓文字母）第 1～12 步，之後接《세종학당 한국어》1（Quasar CLI + Vue 3 + TypeScript + Pinia，PWA，Supabase 同步）。架構從日文網站 `xiouyu/learning-japanese` 複製過來。使用者是台灣的韓文初學者，一律用繁體中文、台灣用語回覆。教學方式見 `docs/teaching-guide.md`。
 
 ## 常用指令
 
@@ -16,4 +16,5 @@
 - Supabase 跟日文網站共用同一個專案，進度存在 `korean_progress` 資料表（日文是 `progress`）
 - 自訂樣式在 `src/css/app.css`，class 名稱不要用 Quasar 已經用的工具類別（例如 `row`、`wrap`、`col`）
 - 部署：推到 `main` 會自動發布到 GitHub Pages
-- 課本原始教材（PDF、mp3）放在私人專案 `xiouyu/learning-korean-materials`，不要加進這個公開專案。課本是공공누리第 4 類授權（標示出處、非商業、不得改作），講解要用自己的話寫
+- 課本原始教材（PDF、mp3）在使用者電腦上的備份和 Google Drive「Tia老師韓文資料」，不要把 PDF 或整頁圖片加進這個公開專案。世宗學堂教材多為공공누리第 4 類授權（標示出處、非商業、不得改作），講解要用自己的話寫
+- 製作課本步驟的做法見 `docs/handoff-lessons.md`

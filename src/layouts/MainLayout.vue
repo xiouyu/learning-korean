@@ -18,7 +18,7 @@
           </div>
         </div>
         <p class="sub">
-          跟著《世宗韓國語》1A 一步一步學：先打好 40 音（韓文字母）基礎，再學課本內容。共 {{ STEPS.length }} 步，通過每一步的解鎖測驗，才會開放下一步。
+          跟著《세종학당 한국어》1 一步一步學：先打好 40 音（韓文字母）基礎，再學課本內容。共 {{ STEPS.length }} 步，通過每一步的解鎖測驗，才會開放下一步。
         </p>
         <ProgressStrip />
         <div v-if="voiceWarning" class="banner">{{ voiceWarning }}</div>

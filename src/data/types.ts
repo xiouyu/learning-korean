@@ -59,7 +59,7 @@ export interface Step {
   note?: string;
   /** 課本的會話 */
   dialogs?: Dialog[];
-  /** 出處，例如「《世宗韓國語》1A 第1課 p.20」 */
+  /** 出處，例如「《세종학당 한국어》1 第1課 p.20」 */
   source?: string;
 }
 
