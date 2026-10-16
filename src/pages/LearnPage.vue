@@ -66,6 +66,13 @@
       </button>
     </div>
 
+    <!-- 複習的選擇題 -->
+    <div v-if="step.cloze?.length" class="sec">
+      <h3>選選看</h3>
+      <p class="muted lead">選出空格裡最適合的答案，選完會顯示解說並唸出整句。可以一直重做，不會影響進度。</p>
+      <ClozeList :items="step.cloze" :step-id="step.id" />
+    </div>
+
     <!-- 課本的會話 -->
     <div v-if="step.dialogs?.length" class="sec">
       <h3>聽會話</h3>
@@ -190,6 +197,7 @@ import { speak } from '@/composables/useSpeech';
 import { useProgressStore } from '@/stores/progress';
 import WritingPad from '@/components/WritingPad.vue';
 import WordList from '@/components/WordList.vue';
+import ClozeList from '@/components/ClozeList.vue';
 import SpeakerIcon from '@/components/SpeakerIcon.vue';
 
 defineOptions({ name: 'LearnPage' });

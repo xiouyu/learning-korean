@@ -40,6 +40,21 @@ describe('教材資料', () => {
   });
 });
 
+describe('選選看', () => {
+  it('每一題都有空格，答案在選項裡，選項不重複', () => {
+    for (const s of STEPS) {
+      for (const [i, c] of (s.cloze ?? []).entries()) {
+        const tag = `第 ${s.id} 步第 ${i + 1} 題`;
+        expect(c.q, tag).toContain('___');
+        expect(c.a, tag).toBeGreaterThanOrEqual(0);
+        expect(c.a, tag).toBeLessThan(c.opts.length);
+        expect(new Set(c.opts).size, tag).toBe(c.opts.length);
+        expect(c.why, tag).not.toBe('');
+      }
+    }
+  });
+});
+
 describe('韓文字的組合和拆解', () => {
   it('子音＋母音（＋收尾音）組成一個字', () => {
     expect(compose('ㄱ', 'ㅏ')).toBe('가');

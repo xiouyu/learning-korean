@@ -153,6 +153,8 @@ canvas.pad{width:100%;aspect-ratio:1/1;max-width:100%;display:block;border-radiu
 .opts.single{grid-template-columns:minmax(0,1fr)}
 .opt:hover:not(:disabled){border-color:var(--accent)}
 .opt:disabled{cursor:default}
+.opt[disabled]{opacity:1 !important;cursor:default !important}
+.opt[disabled]:not(.right):not(.wrong){color:var(--muted)}
 .opt.right{border-color:var(--ok);background:var(--ok-soft);color:var(--ok)}
 .opt.wrong{border-color:var(--shu);background:var(--shu-soft);color:var(--shu)}
 .fb{min-height:1.7em;font-size:15px}
@@ -243,4 +245,22 @@ body,body.body--dark{background:var(--bg);color:var(--ink);font-family:var(--f-b
 .voice-list{max-height:min(46vh,360px);overflow-y:auto}
 .voice-tip{font-size:13px}
 .qhead{display:flex;align-items:center;justify-content:space-between;gap:12px}
+/* 選選看（複習步驟的填空選擇題） */
+.cloze{display:grid;gap:12px;max-width:720px}
+.cq{background:var(--surface);border:1px solid var(--line);border-radius:12px;padding:12px 14px;display:grid;gap:8px}
+.cq.ok{border-color:var(--ok)}
+.cq.ng{border-color:var(--shu)}
+.cq-head{display:flex;gap:10px;align-items:baseline}
+.cq-n{font-family:var(--f-mono);font-size:13px;color:var(--muted);flex:none}
+.cq-q{font-size:20px;line-height:1.5;white-space:pre-line}
+.cq-m{font-size:13px}
+.cq-opts{display:flex;flex-wrap:wrap;gap:8px}
+.copt{appearance:none;border:1px solid var(--line);background:var(--bg);color:var(--ink);border-radius:8px;padding:6px 14px;font-size:17px;cursor:pointer}
+.copt:hover:not(:disabled){border-color:var(--accent)}
+/* Quasar 會把 disabled 的按鈕調淡，答完要清楚看出對錯，所以蓋掉；沒選的選項另外調淡 */
+.copt[disabled]{opacity:1 !important;cursor:default !important}
+.copt[disabled]:not(.right):not(.wrong){color:var(--muted)}
+.copt.right{border-color:var(--ok);background:var(--ok-soft);color:var(--ok)}
+.copt.wrong{border-color:var(--shu);background:var(--shu-soft);color:var(--shu)}
+.cq-why{font-size:14px}
 .quit-btn{font-size:13px;padding:6px 12px;flex:none}

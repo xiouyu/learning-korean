@@ -44,6 +44,19 @@ export interface Dialog {
   lines: { who?: string; t: string; r?: string; m?: string }[];
 }
 
+/** 選選看（填空選擇題），用在複習步驟 */
+export interface Cloze {
+  /** 題目，空格寫成 ___ */
+  q: string;
+  /** 題目的中文提示（情境、要選什麼） */
+  m?: string;
+  opts: string[];
+  /** 正確答案在 opts 的位置（從 0 開始） */
+  a: number;
+  /** 解說：為什麼是這個答案 */
+  why: string;
+}
+
 export interface Step {
   id: number;
   row: string;
@@ -59,6 +72,8 @@ export interface Step {
   note?: string;
   /** 課本的會話 */
   dialogs?: Dialog[];
+  /** 選選看（複習用的填空選擇題） */
+  cloze?: Cloze[];
   /** 出處，例如「《세종학당 한국어》1 第1課 p.20」 */
   source?: string;
 }
