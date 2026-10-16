@@ -10,6 +10,8 @@ export const JONG = ['', 'ㄱ', 'ㄲ', 'ㄳ', 'ㄴ', 'ㄵ', 'ㄶ', 'ㄷ', 'ㄹ',
 /** 初聲、中聲的羅馬拼音（韓國官方的國語羅馬字表記法；ㅇ 在字首不發音） */
 const CHO_R = ['g', 'kk', 'n', 'd', 'tt', 'r', 'm', 'b', 'pp', 's', 'ss', '', 'j', 'jj', 'ch', 'k', 't', 'p', 'h'];
 const JUNG_R = ['a', 'ae', 'ya', 'yae', 'eo', 'e', 'yeo', 'ye', 'o', 'wa', 'wae', 'oe', 'yo', 'u', 'wo', 'we', 'wi', 'yu', 'eu', 'ui', 'i'];
+/** 收尾音單獨唸的時候只剩 7 個代表音：k n t l m p ng */
+const JONG_R = ['', 'k', 'k', 'k', 'n', 'n', 'n', 't', 'l', 'k', 'm', 'l', 'l', 'l', 'p', 'l', 'm', 'p', 'p', 't', 't', 'ng', 't', 't', 'k', 't', 'p', 't'];
 
 /** 韓文的 40 個字母：母音 21 個、子音 19 個（照網站教的順序） */
 export const VOWELS = ['ㅏ', 'ㅓ', 'ㅗ', 'ㅜ', 'ㅡ', 'ㅣ', 'ㅑ', 'ㅕ', 'ㅛ', 'ㅠ', 'ㅐ', 'ㅔ', 'ㅒ', 'ㅖ', 'ㅘ', 'ㅙ', 'ㅚ', 'ㅝ', 'ㅞ', 'ㅟ', 'ㅢ'];
@@ -51,9 +53,9 @@ export function jamoOf(text: string): string[] {
   return out;
 }
 
-/** 沒有收尾音的字的羅馬拼音，例如 거 → geo；有收尾音或不是韓文字就回傳 null */
+/** 一個字單獨唸時的羅馬拼音，例如 거 → geo、밖 → bak；不是韓文字就回傳 null */
 export function romanize(ch: string): string | null {
   const s = decompose(ch);
-  if (!s || s.jong) return null;
-  return CHO_R[CHO.indexOf(s.cho)]! + JUNG_R[JUNG.indexOf(s.jung)]!;
+  if (!s) return null;
+  return CHO_R[CHO.indexOf(s.cho)]! + JUNG_R[JUNG.indexOf(s.jung)]! + JONG_R[JONG.indexOf(s.jong)]!;
 }

@@ -8,7 +8,7 @@ export const STEPS = raw as Step[];
 export const ROADMAP: RoadmapItem[] = [
   ...STEPS.map((s) => ({ n: s.id, t: s.title, row: s.row, note: s.note, part: s.part })),
   // 還沒加進網站的下一步：學習路線最後顯示「下一站」
-  { n: STEPS.length + 1, t: '子音 ㄱ ㄴ ㄷ ㄹ', row: '子音（一）', note: '準備中', part: '下一站', ext: true },
+  { n: STEPS.length + 1, t: '《世宗韓國語》1A 第 1 課', row: '1A 第1課', note: '準備中', part: '下一站', ext: true },
 ];
 
 export const ALL_LETTERS: LetterItem[] = STEPS.flatMap((s) => s.letters.map((k) => ({ ...k, step: s.id })));
@@ -23,9 +23,20 @@ export const LETTER_SETS = [
   { label: 'ㄱ', name: '子音', list: CONSONANTS },
 ] as const;
 
-/** 反切表（基本字母組成的字）：直的是 14 個基本子音，橫的是 10 個基本母音 */
-export const TABLE_ROWS = ['ㄱ', 'ㄴ', 'ㄷ', 'ㄹ', 'ㅁ', 'ㅂ', 'ㅅ', 'ㅇ', 'ㅈ', 'ㅊ', 'ㅋ', 'ㅌ', 'ㅍ', 'ㅎ'];
-export const TABLE_COLS = ['ㅏ', 'ㅑ', 'ㅓ', 'ㅕ', 'ㅗ', 'ㅛ', 'ㅜ', 'ㅠ', 'ㅡ', 'ㅣ'];
+/** 反切表：直的是子音，橫的是母音，交叉的格子是兩個字母拼成的字 */
+const BASIC_C = ['ㄱ', 'ㄴ', 'ㄷ', 'ㄹ', 'ㅁ', 'ㅂ', 'ㅅ', 'ㅇ', 'ㅈ', 'ㅊ', 'ㅋ', 'ㅌ', 'ㅍ', 'ㅎ'];
+const BASIC_V = ['ㅏ', 'ㅑ', 'ㅓ', 'ㅕ', 'ㅗ', 'ㅛ', 'ㅜ', 'ㅠ', 'ㅡ', 'ㅣ'];
+export const TABLES = [
+  { id: 'basic', label: '基本', desc: '基本子音 14 個 × 基本母音 10 個', rows: BASIC_C, cols: BASIC_V },
+  { id: 'tense', label: '緊音', desc: '緊音 5 個 × 基本母音 10 個', rows: ['ㄲ', 'ㄸ', 'ㅃ', 'ㅆ', 'ㅉ'], cols: BASIC_V },
+  {
+    id: 'compound',
+    label: '複合母音',
+    desc: '基本子音 14 個 × 複合母音 11 個',
+    rows: BASIC_C,
+    cols: ['ㅐ', 'ㅒ', 'ㅔ', 'ㅖ', 'ㅘ', 'ㅙ', 'ㅚ', 'ㅝ', 'ㅞ', 'ㅟ', 'ㅢ'],
+  },
+] as const;
 
 export function stepLabel(n: number): string {
   const s = STEPS.find((x) => x.id === n);

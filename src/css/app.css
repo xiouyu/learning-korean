@@ -156,7 +156,7 @@ canvas.pad{width:100%;aspect-ratio:1/1;max-width:100%;display:block;border-radiu
 
 /* table */
 .tscroll{overflow-x:auto}
-.gt{display:grid;grid-template-columns:30px repeat(10,minmax(44px,1fr));gap:4px;min-width:520px;max-width:760px}
+.gt{display:grid;gap:4px;max-width:800px}
 .gt .rh{font-size:16px;color:var(--muted);display:grid;place-items:center}
 .gc{appearance:none;font:inherit;color:inherit;background:var(--surface);border:1px solid var(--line);border-radius:8px;padding:6px 2px;display:grid;justify-items:center;gap:0;cursor:pointer}
 .gc .hangul{font-size:22px;line-height:1.3}

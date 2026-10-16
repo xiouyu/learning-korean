@@ -22,9 +22,9 @@ export function sqFontSize(t: string): string | undefined {
     2: [28, 6, 44],
     3: [20, 4.2, 32],
     4: [16, 3.2, 25],
-    5: [13, 2.6, 20],
+    5: [14, 2.8, 22],
   };
-  const [min, vw, max] = sizes[n] ?? [11, 2.1, 17];
+  const [min, vw, max] = sizes[n] ?? [12, 2.3, 18];
   return `clamp(${min}px,${vw}vw,${max}px)`;
 }
 

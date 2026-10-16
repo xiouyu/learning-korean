@@ -57,7 +57,11 @@ describe('韓文字的組合和拆解', () => {
     expect(romanize('거')).toBe('geo');
     expect(romanize('으')).toBe('eu');
     expect(romanize('쭈')).toBe('jju');
-    expect(romanize('한')).toBeNull();
+    expect(romanize('한')).toBe('han');
+    expect(romanize('밖')).toBe('bak');
+    expect(romanize('옷')).toBe('ot');
+    expect(romanize('닭')).toBe('dak');
+    expect(romanize('a')).toBeNull();
   });
 });
 
