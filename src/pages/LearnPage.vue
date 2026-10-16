@@ -158,7 +158,7 @@
       </div>
     </div>
 
-    <p v-if="step.source" class="muted credit">出處：{{ step.source }}・©世宗學堂財團（공공누리 第 4 類：標示出處、非商業使用、不得改作）</p>
+    <p v-if="step.source" class="muted credit">出處：{{ step.source }}・©2024 세종학당재단《바로 배워 바로 쓰는 세종학당 한국어 1》。課文句子為學習引用，講解為本站自行撰寫。</p>
 
     <div class="sec">
       <h3>學習路線</h3>
