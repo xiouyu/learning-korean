@@ -8,7 +8,7 @@ export const STEPS = raw as Step[];
 export const ROADMAP: RoadmapItem[] = [
   ...STEPS.map((s) => ({ n: s.id, t: s.title, row: s.row, note: s.note, part: s.part })),
   // 還沒加進網站的下一步：學習路線最後顯示「下一站」
-  { n: STEPS.length + 1, t: '《세종학당 한국어》1 第 2 課 회사원이 아니에요', row: '第2課', note: '準備中', part: '下一站', ext: true },
+  { n: STEPS.length + 1, t: '《세종학당 한국어》1 第 4 課 여기가 지훈 씨의 학교입니까?', row: '第4課', note: '準備中', part: '下一站', ext: true },
 ];
 
 export const ALL_LETTERS: LetterItem[] = STEPS.flatMap((s) => s.letters.map((k) => ({ ...k, step: s.id })));

@@ -1,8 +1,8 @@
 <template>
   <section class="panel">
     <div v-if="parts.length > 1" class="hrow parts" aria-label="選擇單元">
-      <button v-for="pt in parts" :key="pt" class="seg" :aria-pressed="pt === step.part" @click="pickPart(pt)">
-        {{ pt }}
+      <button v-for="pt in parts" :key="pt" class="seg" :aria-pressed="pt === step.part" :title="pt" @click="pickPart(pt)">
+        {{ shortPart(pt) }}
       </button>
     </div>
 
@@ -27,7 +27,7 @@
     </div>
 
     <div class="stephead">
-      <div class="eyebrow">第 {{ step.id }} 步・{{ step.row }}{{ step.id <= p.d.passed ? '・已通過' : '・學習中' }}</div>
+      <div class="eyebrow">{{ step.part }}・第 {{ step.id }} 步・{{ step.row }}{{ step.id <= p.d.passed ? '・已通過' : '・學習中' }}</div>
       <h2>{{ step.title }}</h2>
       <p class="lead muted">{{ step.rule }}{{ isPhrase ? '點一下句子可以聽發音，並在下方跟著唸。' : '點一下字卡可以聽發音，並在下方描字練習。' }}</p>
     </div>
@@ -212,6 +212,9 @@ const srcLine = computed(() => {
   if (!k.o) return '';
   return `${k.ol || '字母'}「${k.o}」${k.d ? `：${k.d}` : ''}。`;
 });
+
+/** 單元按鈕只顯示「第3課」，完整課名放在 title；課數變多時才不會排成一大片 */
+const shortPart = (pt: string) => (/^第\d+課 /.test(pt) ? pt.split(' ')[0]! : pt);
 
 function pickPart(pt: string) {
   const last = STEPS.filter((x) => x.part === pt && x.id <= p.curU).pop();
