@@ -11,7 +11,7 @@ export const STEPS = raw as Step[];
 export const ROADMAP: RoadmapItem[] = [
   ...STEPS.map((s) => ({ n: s.id, t: s.title, row: s.row, note: s.note, part: s.part })),
   // 還沒加進網站的下一步：學習路線最後顯示「下一站」
-  { n: STEPS.length + 1, t: '《세종학당 한국어》1 第 6 課 친구한테 편지를 써요', row: '第6課', note: '準備中', part: '下一站', ext: true },
+  { n: STEPS.length + 1, t: '《세종학당 한국어》1 第 8 課 토요일에 친구를 만났어요', row: '第8課', note: '準備中', part: '下一站', ext: true },
 ];
 
 export const ALL_LETTERS: LetterItem[] = STEPS.flatMap((s) => s.letters.map((k) => ({ ...k, step: s.id })));
