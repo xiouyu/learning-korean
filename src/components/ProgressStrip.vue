@@ -9,6 +9,9 @@
       </div>
     </div>
     <div class="lbl">{{ rows.map((r) => `${r.name} ${r.done} / ${r.total}`).join('・') }}・{{ tail }}</div>
+    <div class="lbl lbl-day">
+      連續學習 <b>{{ p.streakN }}</b> 天・今天練了 <b>{{ p.todayN }}</b> 題{{ p.todayN >= DAILY_N ? '，達成每日目標 ✓' : `（目標 ${DAILY_N} 題）` }}
+    </div>
   </div>
 </template>
 
@@ -16,6 +19,7 @@
 import { computed } from 'vue';
 import { LEARNED_AT, LETTER_SETS, ROADMAP, STEPS, stepLabel } from '@/data';
 import { useProgressStore } from '@/stores/progress';
+import { DAILY_N } from '@/lib/daily';
 
 const p = useProgressStore();
 
@@ -32,6 +36,7 @@ const rows = computed(() =>
 
 const tail = computed(() => {
   const passed = p.d.passed;
+  if (p.examDue) return `${p.examDue.done}！下一關：${p.examDue.title}`;
   if (passed >= STEPS.length) {
     const nx = ROADMAP.find((r) => r.n === passed + 1);
     return nx?.ext ? `目前的內容全部學完了！下一站：${nx.row}（準備中）` : `第 ${passed + 1} 步內容準備中`;

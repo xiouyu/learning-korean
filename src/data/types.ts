@@ -78,6 +78,31 @@ export interface Step {
   source?: string;
 }
 
+/** 每一課的文化小知識（本站自己寫的，不是課本內容） */
+export interface Culture {
+  id: number;
+  lesson: number;
+  /** 韓文標題 */
+  ko: string;
+  zh: string;
+  body: string[];
+  /** [韓文, 羅馬拼音, 中文] */
+  words: [string, string, string][];
+}
+
+/** 每一課的學習目標（Can-do，能做到的事），自我檢核用；照課本的학습목표用自己的話寫 */
+export interface CanDo {
+  n: number;
+  lesson: number;
+  /** 簡短的標題 */
+  title: string;
+  zh: string;
+  /** 做得到的話會說的一句話（課文的句子） */
+  ex: string;
+  /** 要回去複習哪一步 */
+  step: number;
+}
+
 export interface RoadmapItem {
   n: number;
   t: string;

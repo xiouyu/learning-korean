@@ -2,6 +2,17 @@ import type { LetterItem } from '@/data/types';
 
 export const PASS = 8; // 解鎖測驗：10 題答對 8 題
 export const QN = 10;
+/** 一般測驗可以選的題數；0 = 範圍裡的每個字（句子）各考一次，ENDLESS = 不限題數，想停再按結束 */
+export const ENDLESS = -1;
+export const QN_OPTS = [10, 20, 30, 50, 0, ENDLESS] as const;
+
+/** 出題方式：平均出題，或常錯的字優先 */
+export type QuizPick = 'even' | 'weak';
+/** 弱點分數：答錯 +2、答對 -1，最多 10 */
+export const WEAK_MISS = 2;
+export const WEAK_MAX = 10;
+/** 常錯的字被抽到的機率：弱點分數 2（錯一次）大約是一般字的 9 倍 */
+export const weakWeight = (w: number) => 1 + 4 * w;
 
 export const shuffle = <T>(a: readonly T[]): T[] => {
   const b = a.slice();
@@ -34,13 +45,48 @@ export const fitPx = (t: string, base: number, room: number) =>
 /** 同音的字（例如 애／에）不會出現在同一題 */
 export const snd = (k: LetterItem) => k.snd || k.r;
 
-export type QuizMode = 'k2r' | 'a2k' | 'r2k';
+/**
+ * k2z、a2z（看句子／聽發音選中文意思）用在今日複習和課本的大會考；
+ * t2r、a2t 是打字作答（看字打拼音、聽音打字），只用在一般測驗。
+ */
+export type QuizMode = 'k2r' | 'a2k' | 'r2k' | 'k2z' | 'a2z' | 't2r' | 'a2t';
 
+/** 這種題型的選項是中文意思 */
+export const isMeaning = (m: QuizMode) => m === 'k2z' || m === 'a2z';
+/** 這種題型要先聽發音 */
+export const isListen = (m: QuizMode) => m === 'a2k' || m === 'a2z' || m === 'a2t';
+/** 打字作答的題型 */
+export const isTyped = (m: QuizMode) => m === 't2r' || m === 'a2t';
+
+/** 一般測驗可以選的題型（解鎖測驗只用前三種選擇題） */
 export const MODES: { id: QuizMode; t: string }[] = [
   { id: 'k2r', t: '看字選拼音' },
   { id: 'a2k', t: '聽音選字' },
   { id: 'r2k', t: '看拼音選字' },
+  { id: 't2r', t: '看字打拼音' },
+  { id: 'a2t', t: '聽音打字' },
 ];
+export const CHOICE_MODES: QuizMode[] = ['k2r', 'a2k', 'r2k'];
+
+/** 把拼音整理成可以比對的樣子：不分大小寫，去掉空白、連字號和標點（例如 an-nyeong 和 annyeong 一樣） */
+export const normRoma = (t: string) => t.toLowerCase().replace(/[^a-z]/g, '');
+
+/** 把韓文的答案整理成可以比對的樣子：去掉空白和標點，拆開打的字母合成一個字（NFC） */
+export const normHangul = (t: string) => t.normalize('NFC').replace(/[\s　.,?!~…·、。，？！「」'"()（）-]/g, '');
+
+/** 打字作答對不對：照實際唸法的拼音，或直接打韓文都可以 */
+export function checkTyped(a: { k: string; r: string }, input: string): boolean {
+  const t = input.trim();
+  if (!t) return false;
+  if (/[a-zA-Z]/.test(t) && !/[가-힣ㄱ-ㅣ]/.test(t)) return normRoma(t) === normRoma(a.r);
+  return normHangul(t) === normHangul(a.k);
+}
+
+/** 中文說明的第一句（例如「你好。見面打招呼…」→「你好」），當作意思題的選項 */
+export function gist(z: string): string {
+  const t = (z.match(/^.*?[。？！?!]/)?.[0] ?? z).trim();
+  return t.endsWith('。') ? t.slice(0, -1) : t;
+}
 
 export interface Question {
   a: LetterItem;
@@ -49,25 +95,87 @@ export interface Question {
 }
 
 /**
- * 出題：P 是出題範圍，D 是補干擾選項用的範圍（字比較少的步驟，從前一步補）。
- * 連續兩題不會是同一個字；選項最多 4 個，而且彼此不同音。
+ * 依權重抽 n 題（可以重複），同一個字不會連續出現，
+ * 也不會一直抽同一個字（每個字最多出現 n / 範圍大小 + 2 次）。
  */
-export function makeQs(P: LetterItem[], modeFn: () => QuizMode, D: LetterItem[] = P, n = QN): Question[] {
+export function pickWeighted(P: LetterItem[], n: number, weight: (a: LetterItem) => number): LetterItem[] {
+  const cap = Math.ceil(n / P.length) + 2;
+  const count = new Map<LetterItem, number>();
+  const out: LetterItem[] = [];
+  while (out.length < n) {
+    const prev = out[out.length - 1];
+    let cand = P.filter((x) => x !== prev && (count.get(x) ?? 0) < cap);
+    if (!cand.length) cand = P.filter((x) => x !== prev);
+    if (!cand.length) cand = P;
+    const ws = cand.map(weight);
+    let r = Math.random() * ws.reduce((a, b) => a + b, 0);
+    let pick = cand[cand.length - 1]!;
+    for (let i = 0; i < cand.length; i++) {
+      r -= ws[i]!;
+      if (r < 0) {
+        pick = cand[i]!;
+        break;
+      }
+    }
+    out.push(pick);
+    count.set(pick, (count.get(pick) ?? 0) + 1);
+  }
+  return out;
+}
+
+/**
+ * 出題：P 是出題範圍，D 是補干擾選項用的範圍（字比較少的步驟，從前一步補）。
+ * 連續兩題不會是同一個字；選項最多 4 個，而且彼此不同音（意思題的選項也不會有相同的意思）。
+ * modeFn 決定每一題的題型，可以依題目的字決定（例如課本的句子才出意思題）。
+ * 有 weight 時依權重抽題（常錯的字比較常出），沒有就每個字輪流出。
+ */
+export function makeQs(
+  P: LetterItem[],
+  modeFn: (a: LetterItem) => QuizMode,
+  D: LetterItem[] = P,
+  n = QN,
+  weight?: (a: LetterItem) => number,
+): Question[] {
   let qs: LetterItem[] = [];
+  if (weight) qs = pickWeighted(P, n, weight);
   while (qs.length < n) {
     const b = shuffle(P);
     if (qs.length && b.length > 1 && b[0]!.k === qs[qs.length - 1]!.k) b.push(b.shift()!);
     qs = qs.concat(b);
   }
   return qs.slice(0, n).map((a) => {
+    const m = modeFn(a);
     const used = new Set([snd(a)]);
+    const usedZ = new Set([gist(a.z)]);
+    // 不同步驟可能有同一句話（例如文法步驟和會話步驟都有的句子），選項的字也不重複
+    const usedK = new Set([a.k]);
     const opts = [a];
     for (const x of shuffle(P).concat(shuffle(D))) {
       if (opts.length >= 4) break;
-      if (opts.includes(x) || used.has(snd(x))) continue;
+      if (opts.includes(x) || used.has(snd(x)) || usedK.has(x.k) || (isMeaning(m) && usedZ.has(gist(x.z)))) continue;
       used.add(snd(x));
+      usedK.add(x.k);
+      usedZ.add(gist(x.z));
       opts.push(x);
     }
-    return { a, m: modeFn(), opts: shuffle(opts) };
+    return { a, m, opts: shuffle(opts) };
   });
+}
+
+/**
+ * 大會考出題：groups 是每個單元（或每一課）的題目，
+ * 每個單元平均出題，干擾選項優先用同一個單元的，不夠再從全部的補。
+ */
+export function makeExam(groups: LetterItem[][], modeFn: (a: LetterItem) => QuizMode, n: number): Question[] {
+  const all = groups.flat();
+  const qs: Question[] = [];
+  groups.forEach((g, i) => {
+    // 題數除不盡時，多的題目給前面的單元
+    const m = Math.floor(n / groups.length) + (i < n % groups.length ? 1 : 0);
+    if (m && g.length) qs.push(...makeQs(g, modeFn, all, m));
+  });
+  // 打散順序；同一個字連續出現就重新打散
+  let out = shuffle(qs);
+  for (let t = 0; t < 20 && out.some((x, i) => i > 0 && x.a.k === out[i - 1]!.a.k); t++) out = shuffle(qs);
+  return out;
 }

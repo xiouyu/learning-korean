@@ -66,6 +66,7 @@ const TABS = [
   { to: '/quiz', label: '測驗' },
   { to: '/words', label: '單字' },
   { to: '/table', label: '反切表' },
+  { to: '/check', label: '檢核' },
 ];
 
 const sync = useSyncStore();

@@ -1,7 +1,7 @@
 import { defineStore } from 'pinia';
 import { computed, ref, watch } from 'vue';
 import type { User } from '@supabase/supabase-js';
-import { STEPS } from '@/data';
+import { EXAMS, STEPS } from '@/data';
 import { supabase } from '@/lib/supabase';
 import { authErrorMessage, parseAuthRedirect } from '@/lib/authRedirect';
 import { mergeProgress, normalize, sameProgress, type ProgressData } from '@/lib/progress';
@@ -50,7 +50,7 @@ export const useSyncStore = defineStore('sync', () => {
       const { data, error } = await supabase.from(TABLE).select('data').eq('user_id', uid).maybeSingle();
       if (error) throw error;
       const local = progress.snapshot();
-      const remote = normalize((data?.data ?? null) as Partial<ProgressData> | null, STEPS.length);
+      const remote = normalize((data?.data ?? null) as Partial<ProgressData> | null, STEPS.length, EXAMS);
       const merged = mergeProgress(local, remote);
       if (!sameProgress(merged, local)) {
         applying = true;

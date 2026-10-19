@@ -165,12 +165,54 @@
       </div>
     </div>
 
+    <!-- 大會考接在這一步後面：通過這一步後要再考大會考，才會解鎖下一步 -->
+    <div v-if="stepExam && step.id <= p.d.passed" class="unlock" :class="{ passed: p.examPassed(stepExam.id) }">
+      <h3>{{ stepExam.title }}{{ p.examPassed(stepExam.id) ? '・已通過' : '' }}</h3>
+      <p v-if="p.examPassed(stepExam.id)" class="muted">已經通過了。想確認自己還記得，可以隨時再考一次，成績不會影響進度。</p>
+      <p v-else>
+        {{ stepExam.done }}！先用大會考確認程度：{{ stepExam.scope }}，共 {{ stepExam.n }} 題，答對
+        {{ stepExam.pass }} 題以上{{ stepExam.reward }}。沒通過可以一直重考。
+      </p>
+      <div class="hrow">
+        <button class="btn" :class="{ primary: !p.examPassed(stepExam.id) }" @click="startExam(stepExam.id)">
+          {{ p.examPassed(stepExam.id) ? '再考一次' : '開始大會考' }}
+        </button>
+      </div>
+    </div>
+
+    <!-- 這一課的文化小知識（同一課的每一步都看得到，預設收起來） -->
+    <div v-if="culture.length" class="sec">
+      <h3>文化小知識・第 {{ lesson }} 課</h3>
+      <div class="cul-list">
+        <details v-for="c in culture" :key="c.id" class="cul">
+          <summary>
+            <span class="cul-zh">{{ c.zh }}</span>
+            <span class="hangul muted cul-ko">{{ c.ko }}</span>
+          </summary>
+          <p v-for="(b, bi) in c.body" :key="bi">{{ b }}</p>
+          <div v-if="c.words.length" class="cul-words">
+            <button v-for="w in c.words" :key="w[0]" class="chip" :aria-label="`播放 ${w[0]}`" @click="speak(w[0])">
+              <span class="kn">{{ w[0] }}</span> <span class="mono">{{ w[1] }}</span> {{ w[2] }}
+            </button>
+          </div>
+        </details>
+      </div>
+    </div>
+
     <p v-if="step.source" class="muted credit">出處：{{ step.source }}・©2024 세종학당재단《바로 배워 바로 쓰는 세종학당 한국어 1》。課文句子為學習引用，講解為本站自行撰寫。</p>
 
     <div class="sec">
       <h3>學習路線</h3>
       <ol class="road">
         <template v-for="(r, i) in ROADMAP" :key="r.n">
+          <li v-for="e in EXAMS.filter((x) => x.after + 1 === r.n)" :key="e.id">
+            <span class="n">大會考</span>
+            <span>
+              <span class="t">{{ e.title }}</span>
+              <span class="muted" style="font-size: 13px"> ・{{ e.road }}</span>
+            </span>
+            <span class="pill" :class="examState(e).cls">{{ examState(e).label }}</span>
+          </li>
           <li v-if="i === 0 || ROADMAP[i - 1]!.part !== r.part" class="rgrp">{{ r.part }}</li>
           <li>
             <span class="n">{{ r.ext ? '下一站' : `第 ${r.n} 步` }}</span>
@@ -189,7 +231,7 @@
 <script setup lang="ts">
 import { computed, ref } from 'vue';
 import { useRouter } from 'vue-router';
-import { ROADMAP, STEPS, stepLabel } from '@/data';
+import { CULTURE, EXAMS, ROADMAP, STEPS, lessonOf, stepLabel, type Exam } from '@/data';
 import type { Dialog, RoadmapItem } from '@/data/types';
 import { PASS, QN, sqFontSize } from '@/lib/quiz';
 import { playAudio, say } from '@/composables/useAudio';
@@ -211,7 +253,21 @@ const step = computed(() => STEPS.find((x) => x.id === p.d.step) ?? STEPS[0]!);
 const item = computed(() => step.value.letters[p.cur] ?? step.value.letters[0]!);
 const isPhrase = computed(() => step.value.kind === 'phrase');
 const next = computed(() => ROADMAP.find((r) => r.n === p.curU + 1));
-const lockMsg = computed(() => (p.curU > p.d.passed ? `通過第 ${p.curU} 步測驗後解鎖` : '內容準備中'));
+const lockMsg = computed(() =>
+  p.examDue ? `通過${p.examDue.title}後解鎖` : p.curU > p.d.passed ? `通過第 ${p.curU} 步測驗後解鎖` : '內容準備中',
+);
+/** 這一步屬於第幾課，和那一課的文化小知識 */
+const lesson = computed(() => lessonOf(step.value));
+const culture = computed(() => CULTURE.filter((c) => c.lesson === lesson.value));
+
+/** 接在這一步後面的大會考 */
+const stepExam = computed(() => EXAMS.find((e) => e.after === step.value.id));
+const examState = (e: Exam) =>
+  p.examPassed(e.id)
+    ? { cls: 'done', label: '已通過' }
+    : p.examDue?.id === e.id
+      ? { cls: 'cur', label: '可以考了' }
+      : { cls: '', label: '未解鎖' };
 const parts = computed(() => [...new Set(STEPS.filter((x) => x.id <= p.curU).map((x) => x.part))]);
 const partSteps = computed(() => STEPS.filter((x) => x.id <= p.curU && x.part === step.value.part));
 /** 描字練習的說明：這張字卡要學的字母和字形怎麼來的 */
@@ -250,6 +306,11 @@ function stepItem(delta: number) {
 
 function startUnlock() {
   void router.push({ path: '/quiz', query: { unlock: String(step.value.id) } });
+  window.scrollTo(0, 0);
+}
+
+function startExam(id: string) {
+  void router.push({ path: '/quiz', query: { exam: id } });
   window.scrollTo(0, 0);
 }
 

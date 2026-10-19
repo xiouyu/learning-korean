@@ -264,3 +264,55 @@ body,body.body--dark{background:var(--bg);color:var(--ink);font-family:var(--f-b
 .copt.wrong{border-color:var(--shu);background:var(--shu-soft);color:var(--shu)}
 .cq-why{font-size:14px}
 .quit-btn{font-size:13px;padding:6px 12px;flex:none}
+/* 手機上 6 個分頁要排得下 */
+@media (max-width:420px){.tabbar .q-tab{padding:0 6px}.tabbar .q-tab__label{font-size:14px}}
+@media (max-width:380px){.tabbar .q-tab{padding:0 3px}.tabbar .q-tab__label{font-size:13px}}
+/* 測驗：大會考成績、打字作答、今日複習 */
+.exam-parts{list-style:none;margin:0;padding:0;display:grid;gap:4px;max-width:420px}
+.exam-parts li{display:flex;justify-content:space-between;gap:12px;padding:4px 0;border-bottom:1px solid var(--line)}
+.exam-parts li.weak b{color:var(--shu)}
+.qprompt .hangul.sent{font-size:clamp(24px,6vw,32px);line-height:1.5;text-align:center;overflow-wrap:anywhere}
+.opt.z{font-size:18px;line-height:1.4;text-align:left}
+.weak-k{display:inline-block;margin:0 4px;font-size:18px;color:var(--shu);font-family:var(--f-ko)}
+.typed{display:flex;gap:8px}
+.typed-in{flex:1;min-width:0;font-size:20px;padding:12px 14px;border:1px solid var(--line);border-radius:10px;background:var(--surface);color:var(--ink);font-family:var(--f-ko)}
+.typed-in:focus{outline:2px solid var(--accent);outline-offset:1px}
+.typed-in.right{border-color:var(--ok);background:var(--ok-soft);color:var(--ok)}
+.typed-in.wrong{border-color:var(--shu);background:var(--shu-soft);color:var(--shu)}
+.typed-tip{font-size:13px;margin:0}
+.typed-you{display:block;margin-top:4px}
+.daily-card{background:var(--surface);border:1px solid var(--accent);border-radius:12px;padding:14px 16px;display:grid;gap:6px;max-width:640px}
+.daily-card.done{border-color:var(--ok)}
+.daily-card .hrow{margin-top:4px}
+.lbl-day{margin-top:2px}
+/* 單字裡比較長的句子 */
+.word.sent{grid-column:1/-1}
+.word.sent .w{font-size:22px;line-height:1.5;letter-spacing:.02em}
+/* Can-do 自我檢核 */
+.cd-sum{background:var(--surface);border:1px solid var(--line);border-radius:12px;padding:14px 16px;display:grid;gap:4px;max-width:640px}
+.cd-sum b{font-size:22px}
+.cd-sum p{margin:4px 0 0}
+.cd-list{list-style:none;margin:0;padding:0;display:grid;gap:10px;max-width:640px}
+.cd-item{background:var(--surface);border:1px solid var(--line);border-radius:12px;padding:12px 14px;display:grid;gap:4px}
+.cd-item.locked{opacity:.55}
+.cd-head{display:flex;gap:10px;align-items:baseline}
+.cd-n{font-size:13px;color:var(--muted);font-variant-numeric:tabular-nums;min-width:1.6em}
+.cd-t{font-size:18px;font-weight:700}
+.cd-zh{margin:0;font-size:15px}
+.cd-ex{appearance:none;background:none;border:0;padding:2px 0;color:var(--accent);font-size:17px;text-align:left;cursor:pointer;display:flex;gap:6px;align-items:center}
+.cd-ex svg{width:18px;height:18px;flex:none}
+.cd-stars{display:flex;align-items:center;gap:2px;flex:1}
+.cd-star{appearance:none;background:none;border:0;padding:4px 3px;font-size:26px;line-height:1;color:var(--line);cursor:pointer}
+.cd-star.on{color:var(--accent)}
+.cd-star:disabled{cursor:default}
+.cd-lbl{font-size:13px;margin-left:8px}
+.cd-go{padding:5px 12px;font-size:13px}
+/* 文化小知識 */
+.cul-list{display:grid;gap:8px;max-width:680px}
+.cul{background:var(--surface);border:1px solid var(--line);border-radius:12px;padding:10px 14px}
+.cul summary{cursor:pointer;display:flex;flex-wrap:wrap;gap:4px 10px;align-items:baseline;padding:4px 0}
+.cul-zh{font-weight:700;font-size:16px}
+.cul-ko{font-size:14px}
+.cul p{margin:8px 0;line-height:1.75}
+.cul-words{display:flex;flex-wrap:wrap;gap:6px;margin:6px 0 4px}
+.cul-words .chip{cursor:pointer;font-size:13px}

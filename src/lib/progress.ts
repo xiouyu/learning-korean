@@ -1,9 +1,11 @@
-import type { QuizMode } from './quiz';
+import { QN, QN_OPTS, WEAK_MAX, type QuizMode, type QuizPick } from './quiz';
 
 /** 要存起來、跨裝置同步的學習紀錄 */
 export interface ProgressData {
   /** 已經通過解鎖測驗的步數 */
   passed: number;
+  /** 通過的大會考（例如 'hangul'：40 音大會考） */
+  exams: string[];
   /** 學習頁正在看第幾步 */
   step: number;
   /** 字卡、測驗的練習範圍（步驟 id） */
@@ -12,24 +14,45 @@ export interface ProgressData {
   lastU: number;
   /** 字卡按「記住了」的次數 */
   mastery: Record<string, number>;
+  /** 測驗的弱點分數（答錯 +2、答對 -1），常錯的字優先出題時用 */
+  weak: Record<string, number>;
   qmode: QuizMode;
+  /** 一般測驗的題數（0 = 範圍裡的全部各考一次，-1 = 不限） */
+  qn: number;
+  qpick: QuizPick;
+  /** Can-do 自我檢核：第幾項 → 1～3 顆星 */
+  cando: Record<string, number>;
+  /** 每天練了幾題（本地日期 → 題數），算連續學習天數用 */
+  daily: Record<string, number>;
+  /** 每個字（句子）最後一次在測驗裡答題是第幾天，今日複習挑很久沒練的用 */
+  seen: Record<string, number>;
+  /** 最後一次做完今日複習的日期 */
+  review: string;
   /** 最後修改時間（毫秒），合併時用來決定偏好設定以哪一邊為準 */
   updatedAt: number;
 }
 
 export const emptyProgress = (): ProgressData => ({
   passed: 0,
+  exams: [],
   step: 1,
   scope: [],
   lastU: 0,
   mastery: {},
+  weak: {},
   qmode: 'k2r',
+  qn: QN,
+  qpick: 'even',
+  cando: {},
+  daily: {},
+  seen: {},
+  review: '',
   updatedAt: 0,
 });
 
 // 日文網站也在 xiouyu.github.io，localStorage 是共用的，要用不同的開頭
 const KEY = 'hangul:';
-const QMODES: QuizMode[] = ['k2r', 'a2k', 'r2k'];
+const QMODES: QuizMode[] = ['k2r', 'a2k', 'r2k', 't2r', 'a2t'];
 
 function read<T>(k: string, d: T): T {
   try {
@@ -48,8 +71,19 @@ function write(k: string, v: unknown) {
   }
 }
 
-/** 把任何來源（localStorage、雲端）的資料整理成合法的 ProgressData */
-export function normalize(raw: Partial<ProgressData> | null | undefined, maxStep: number): ProgressData {
+/** 大會考：id 和接在第幾步後面 */
+export interface Gate {
+  id: string;
+  after: number;
+}
+
+const DATE_RE = /^\d{4}-\d{2}-\d{2}$/;
+
+/**
+ * 把任何來源（localStorage、雲端）的資料整理成合法的 ProgressData。
+ * gates 是各個大會考接在第幾步後面：沒有紀錄但已經學過那一步之後的人，當作考過了。
+ */
+export function normalize(raw: Partial<ProgressData> | null | undefined, maxStep: number, gates: Gate[] = []): ProgressData {
   const d = emptyProgress();
   if (!raw) return d;
   const int = (v: unknown, lo: number, hi: number, dflt: number) => {
@@ -57,6 +91,9 @@ export function normalize(raw: Partial<ProgressData> | null | undefined, maxStep
     return Number.isFinite(n) ? Math.max(lo, Math.min(hi, n)) : dflt;
   };
   d.passed = int(raw.passed, 0, maxStep, 0);
+  const exams = new Set(Array.isArray(raw.exams) ? raw.exams.filter((x): x is string => typeof x === 'string' && x !== '') : []);
+  for (const g of gates) if (d.passed > g.after) exams.add(g.id);
+  d.exams = [...exams].sort();
   d.step = int(raw.step, 1, maxStep, 1);
   d.lastU = int(raw.lastU, 0, maxStep, 0);
   d.scope = Array.isArray(raw.scope)
@@ -68,24 +105,65 @@ export function normalize(raw: Partial<ProgressData> | null | undefined, maxStep
       if (Number.isFinite(n) && n > 0) d.mastery[k] = n;
     }
   }
+  if (raw.weak && typeof raw.weak === 'object') {
+    for (const [k, v] of Object.entries(raw.weak)) {
+      const n = Math.floor(Number(v));
+      if (Number.isFinite(n) && n > 0) d.weak[k] = Math.min(n, WEAK_MAX);
+    }
+  }
   d.qmode = QMODES.includes(raw.qmode as QuizMode) ? (raw.qmode as QuizMode) : 'k2r';
+  d.qn = (QN_OPTS as readonly number[]).includes(Number(raw.qn)) ? Number(raw.qn) : QN;
+  d.qpick = raw.qpick === 'weak' ? 'weak' : 'even';
+  d.daily = posInts(raw.daily, (k) => DATE_RE.test(k));
+  // 只留最近 400 天
+  const days = Object.keys(d.daily).sort();
+  for (const k of days.slice(0, Math.max(0, days.length - 400))) delete d.daily[k];
+  d.seen = posInts(raw.seen, () => true);
+  d.review = typeof raw.review === 'string' && DATE_RE.test(raw.review) ? raw.review : '';
+  if (raw.cando && typeof raw.cando === 'object') {
+    for (const [k, v] of Object.entries(raw.cando)) {
+      const n = Number(v);
+      if (/^\d+$/.test(k) && [1, 2, 3].includes(n)) d.cando[k] = n;
+    }
+  }
   d.updatedAt = Number(raw.updatedAt) || 0;
   return d;
 }
 
+/** 只留正整數的值（key 要通過 keyOk） */
+function posInts(raw: unknown, keyOk: (k: string) => boolean): Record<string, number> {
+  const out: Record<string, number> = {};
+  if (raw && typeof raw === 'object') {
+    for (const [k, v] of Object.entries(raw)) {
+      const n = Math.floor(Number(v));
+      if (keyOk(k) && Number.isFinite(n) && n > 0) out[k] = n;
+    }
+  }
+  return out;
+}
+
 /** 讀取這台裝置上的紀錄 */
-export function loadLocal(maxStep: number): ProgressData {
+export function loadLocal(maxStep: number, gates: Gate[] = []): ProgressData {
   return normalize(
     {
       passed: read('passed', 0),
+      exams: read('exams', []),
       step: read('step', 1),
       scope: read('scope', []),
       lastU: read('lastU', 0),
       mastery: read('mastery', {}),
+      weak: read('weak', {}),
       qmode: read('qmode', 'k2r'),
+      qn: read('qn', QN),
+      qpick: read('qpick', 'even'),
+      cando: read('cando', {}),
+      daily: read('daily', {}),
+      seen: read('seen', {}),
+      review: read('review', ''),
       updatedAt: read('updatedAt', 0),
     },
     maxStep,
+    gates,
   );
 }
 
@@ -93,22 +171,36 @@ export function saveLocal(d: ProgressData) {
   for (const [k, v] of Object.entries(d)) write(k, v);
 }
 
+function maxMerge(a: Record<string, number>, b: Record<string, number>): Record<string, number> {
+  const out = { ...a };
+  for (const [k, v] of Object.entries(b)) out[k] = Math.max(out[k] ?? 0, v);
+  return out;
+}
+
 /**
  * 合併兩台裝置的紀錄：
- * - 進度和熟練度只會增加，取兩邊較大的值，不會因為同步而倒退
+ * - 進度、大會考、熟練度、每天的題數、最後練習的日子只會增加，取兩邊較大的值，不會因為同步而倒退
  * - 練習範圍、測驗模式這類偏好，以最後修改的那一邊為準
+ * - 弱點分數答對會減少，所以也以最後修改的那一邊為準（取較大值的話，在一台練熟了，同步後又會變回常錯）
  */
 export function mergeProgress(a: ProgressData, b: ProgressData): ProgressData {
   const newer = b.updatedAt > a.updatedAt ? b : a;
-  const mastery: Record<string, number> = { ...a.mastery };
-  for (const [k, v] of Object.entries(b.mastery)) mastery[k] = Math.max(mastery[k] ?? 0, v);
   return {
     passed: Math.max(a.passed, b.passed),
+    exams: [...new Set([...a.exams, ...b.exams])].sort(),
     step: newer.step,
     scope: [...newer.scope],
     lastU: Math.max(a.lastU, b.lastU),
-    mastery,
+    mastery: maxMerge(a.mastery, b.mastery),
+    weak: { ...newer.weak },
     qmode: newer.qmode,
+    qn: newer.qn,
+    qpick: newer.qpick,
+    // 自我評價可以改高也可以改低，以最後修改的那一邊為準
+    cando: { ...newer.cando },
+    daily: maxMerge(a.daily, b.daily),
+    seen: maxMerge(a.seen, b.seen),
+    review: a.review > b.review ? a.review : b.review,
     updatedAt: Math.max(a.updatedAt, b.updatedAt),
   };
 }
